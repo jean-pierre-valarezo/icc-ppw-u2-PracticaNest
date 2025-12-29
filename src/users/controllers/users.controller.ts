@@ -33,9 +33,10 @@ export class UsersController {
     return this.service.partialUpdate(Number(id), dto);
   }
 
-  @Delete(':id')
-delete(@Param('id') id: string) {
-  return this.service.delete(Number(id));
+@Delete(':id')
+remove(@Param('id') id: string) {
+  return this.service.remove(Number(id));
 }
+
 
 }

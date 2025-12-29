@@ -1,15 +1,15 @@
+import { Entity, Column } from 'typeorm';
+import { BaseEntity } from '../../core/entities/base.entity';
 
-export class User{
-    id: number;
-    name: string;
-    password: string;
-   
-    email?: string;
+@Entity('users')
+export class UserEntity extends BaseEntity {
 
-    constructor(id: number, name: string, password: string, email?: string) {
-        this.id = id;
-        this.name = name;
-        this.password = password;
-        
-    }
+  @Column({ type: 'varchar', length: 150, nullable: false })
+  name: string;
+
+  @Column({ type: 'varchar', length: 150, unique: true, nullable: false })
+  email: string;
+
+  @Column({ type: 'varchar', nullable: false })
+  password: string;
 }

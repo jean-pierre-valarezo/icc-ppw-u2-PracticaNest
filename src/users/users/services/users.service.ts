@@ -1,69 +1,66 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { UserMapper } from 'src/users/mappers/user.mapper';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UserEntity } from 'src/users/entities/user.entity';
+import { User } from 'src/users/models/user.model';
 import { CreateUserDTO } from 'src/users/dtos/create-user.dto';
 import { UpdateUserDTO } from 'src/users/dtos/update-user.dto';
 import { PartialUpdateUserDTO } from 'src/users/dtos/partial-update-user.dto';
-import { User } from '../../entities/user.entity';
+import { UserResponseDTO } from 'src/users/dtos/user-reponse.dto';
 
 @Injectable()
 export class UsersService {
 
-  private users: User[] = [];
-  private currentId = 1;
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly repo: Repository<UserEntity>,
+  ) {}
 
-  findAll() {
-    return this.users.map(user =>
-      UserMapper.toResponseDTO(user),
+  async findAll(): Promise<UserResponseDTO[]> {
+    return (await this.repo.find())
+      .map(User.fromEntity)
+      .map(user => user.toResponseDTO());
+  }
+
+  async findOne(id: number): Promise<UserResponseDTO> {
+    const entity = await this.repo.findOne({ where: { id } });
+    if (!entity) throw new NotFoundException('Usuario no encontrado');
+    return User.fromEntity(entity).toResponseDTO();
+  }
+
+  async create(dto: CreateUserDTO): Promise<UserResponseDTO> {
+    const saved = await this.repo.save(
+      User.fromDto(dto).toEntity(),
     );
+    return User.fromEntity(saved).toResponseDTO();
   }
 
-  findOne(id: number) {
-    const user = this.users.find(u => u.id === id);
-    if (!user) {
+  async update(id: number, dto: UpdateUserDTO): Promise<UserResponseDTO> {
+    const entity = await this.repo.findOne({ where: { id } });
+    if (!entity) throw new NotFoundException('Usuario no encontrado');
+
+    const saved = await this.repo.save(
+      User.fromEntity(entity).update(dto).toEntity(),
+    );
+
+    return User.fromEntity(saved).toResponseDTO();
+  }
+
+  async partialUpdate(id: number, dto: PartialUpdateUserDTO): Promise<UserResponseDTO> {
+    const entity = await this.repo.findOne({ where: { id } });
+    if (!entity) throw new NotFoundException('Usuario no encontrado');
+
+    const saved = await this.repo.save(
+      User.fromEntity(entity).partialUpdate(dto).toEntity(),
+    );
+
+    return User.fromEntity(saved).toResponseDTO();
+  }
+
+  async remove(id: number): Promise<void> {
+    const result = await this.repo.delete(id);
+    if (result.affected === 0) {
       throw new NotFoundException('Usuario no encontrado');
     }
-    return UserMapper.toResponseDTO(user);
-  }
-
-  create(dto: CreateUserDTO) {
-    const entity = UserMapper.toEntity(this.currentId++, dto);
-    this.users.push(entity);
-    return UserMapper.toResponseDTO(entity);
-  }
-
-  update(id: number, dto: UpdateUserDTO) {
-    const user = this.users.find(u => u.id === id);
-    if (!user) {
-      throw new NotFoundException('Usuario no encontrado');
-    }
-
-    user.name = dto.name;
-    user.email = dto.email;
-    user.password = dto.password;
-
-    return UserMapper.toResponseDTO(user);
-  }
-
-  partialUpdate(id: number, dto: PartialUpdateUserDTO) {
-    const user = this.users.find(u => u.id === id);
-    if (!user) {
-      throw new NotFoundException('Usuario no encontrado');
-    }
-
-    user.name = dto.name ?? user.name;
-    user.email = dto.email ?? user.email;
-    user.password = dto.password ?? user.password;
-
-    return UserMapper.toResponseDTO(user);
-  }
-
-  remove(id: number) {
-    const index = this.users.findIndex(u => u.id === id);
-    if (index === -1) {
-      throw new NotFoundException('Usuario no encontrado');
-    }
-
-    this.users.splice(index, 1);
-    return { message: 'Usuario eliminado correctamente' };
   }
 }

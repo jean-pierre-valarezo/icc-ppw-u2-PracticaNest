@@ -1,3 +1,4 @@
+/*
 import { Product } from "../entities/product.entity";
 import { CreateProductDTO } from "../dtos/create-product.dto";
 
@@ -15,3 +16,4 @@ export class ProductMapper {
     };
   }
 }
+*/
