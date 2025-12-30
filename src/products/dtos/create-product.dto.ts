@@ -10,12 +10,12 @@ export class CreateProductDto {
   @MinLength(3, { message: 'La descripción debe tener al menos 3 caracteres' })
   description?: string;
 
-  @IsNumber({}, { message: 'El precio debe ser numérico' })
+  @IsNumber({}, { message: 'El precio debe ser numerico' })
   @Min(0, { message: 'El precio no puede ser negativo' })
   price: number;
 
   @IsOptional()
-  @IsNumber({}, { message: 'El stock debe ser numérico' })
+  @IsNumber({}, { message: 'El stock debe ser numerico' })
   @Min(0, { message: 'El stock no puede ser negativo' })
   stock?: number;
 }
