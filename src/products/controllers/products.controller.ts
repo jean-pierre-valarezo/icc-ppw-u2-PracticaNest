@@ -1,8 +1,9 @@
 import { Controller, Get, Post, Put, Patch, Delete, Param, Body } from '@nestjs/common';
 import { ProductsService } from '../services/products.service';
-import { CreateProductDTO } from '../dtos/create-product.dto';
-import { UpdateProductDTO } from '../dtos/update-product.dto';
-import { PartialUpdateProductDTO } from '../dtos/partial-update-product.dto';
+import { CreateProductDto } from '../dtos/create-product.dto';
+import { UpdateProductDto } from '../dtos/update-product.dto';
+import { PartialUpdateProductDto } from '../dtos/partial-update-product.dto';
+
 
 @Controller('products')
 export class ProductsController {
@@ -19,20 +20,24 @@ export class ProductsController {
     return this.service.findOne(+id);
   }
 
-  @Post()
-  create(@Body() dto: CreateProductDTO) {
-    return this.service.create(dto);
-  }
+@Post()
+create(@Body() dto: CreateProductDto) {
+  return this.service.create(dto);
+}
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateProductDTO) {
-    return this.service.update(+id, dto);
-  }
+@Put(':id')
+update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
+  return this.service.update(+id, dto);
+}
 
-  @Patch(':id')
-  partialUpdate(@Param('id') id: string, @Body() dto: PartialUpdateProductDTO) {
-    return this.service.partialUpdate(+id, dto);
-  }
+@Patch(':id')
+partialUpdate(
+  @Param('id') id: string,
+  @Body() dto: PartialUpdateProductDto,
+) {
+  return this.service.partialUpdate(+id, dto);
+}
+
 
  @Delete(':id')
 delete(@Param('id') id: string) {

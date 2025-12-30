@@ -3,10 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductEntity } from '../entities/product.entity';
 import { Product } from '../models/product.model';
-import { CreateProductDTO } from '../dtos/create-product.dto';
-import { UpdateProductDTO } from '../dtos/update-product.dto';
-import { PartialUpdateProductDTO } from '../dtos/partial-update-product.dto';
-import { ProductResponseDTO } from '../dtos/product-response.dto';
+import { CreateProductDto } from '../dtos/create-product.dto';
+import { UpdateProductDto } from '../dtos/update-product.dto';
+import { PartialUpdateProductDto } from '../dtos/partial-update-product.dto';
+import { ProductResponseDto } from '../dtos/product-response.dto';
 
 @Injectable()
 export class ProductsService {
@@ -16,30 +16,33 @@ export class ProductsService {
     private readonly productRepository: Repository<ProductEntity>,
   ) {}
 
-  async findAll(): Promise<ProductResponseDTO[]> {
+  async findAll(): Promise<ProductResponseDto[]> {
     return (await this.productRepository.find())
       .map(Product.fromEntity)
-      .map(p => p.toResponseDTO());
+      .map(p => p.toResponseDto());
   }
 
-  async findOne(id: number): Promise<ProductResponseDTO> {
+  async findOne(id: number): Promise<ProductResponseDto> {
     const entity = await this.productRepository.findOne({ where: { id } });
 
     if (!entity) {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
 
-    return Product.fromEntity(entity).toResponseDTO();
+    return Product.fromEntity(entity).toResponseDto();
   }
 
-  async create(dto: CreateProductDTO): Promise<ProductResponseDTO> {
+  async create(dto: CreateProductDto): Promise<ProductResponseDto> {
     const product = Product.fromDto(dto);
     const saved = await this.productRepository.save(product.toEntity());
 
-    return Product.fromEntity(saved).toResponseDTO();
+    return Product.fromEntity(saved).toResponseDto();
   }
 
-  async update(id: number, dto: UpdateProductDTO): Promise<ProductResponseDTO> {
+  async update(
+    id: number,
+    dto: UpdateProductDto,
+  ): Promise<ProductResponseDto> {
     const entity = await this.productRepository.findOne({ where: { id } });
 
     if (!entity) {
@@ -52,13 +55,13 @@ export class ProductsService {
 
     const saved = await this.productRepository.save(updated);
 
-    return Product.fromEntity(saved).toResponseDTO();
+    return Product.fromEntity(saved).toResponseDto();
   }
 
   async partialUpdate(
     id: number,
-    dto: PartialUpdateProductDTO,
-  ): Promise<ProductResponseDTO> {
+    dto: PartialUpdateProductDto,
+  ): Promise<ProductResponseDto> {
     const entity = await this.productRepository.findOne({ where: { id } });
 
     if (!entity) {
@@ -71,7 +74,7 @@ export class ProductsService {
 
     const saved = await this.productRepository.save(updated);
 
-    return Product.fromEntity(saved).toResponseDTO();
+    return Product.fromEntity(saved).toResponseDto();
   }
 
   async delete(id: number): Promise<void> {

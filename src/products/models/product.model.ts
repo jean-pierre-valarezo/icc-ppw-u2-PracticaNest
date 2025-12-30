@@ -1,11 +1,10 @@
 import { ProductEntity } from '../entities/product.entity';
-import { CreateProductDTO } from '../dtos/create-product.dto';
-import { UpdateProductDTO } from '../dtos/update-product.dto';
-import { PartialUpdateProductDTO } from '../dtos/partial-update-product.dto';
-import { ProductResponseDTO } from '../dtos/product-response.dto';
+import { CreateProductDto } from '../dtos/create-product.dto';
+import { UpdateProductDto } from '../dtos/update-product.dto';
+import { PartialUpdateProductDto } from '../dtos/partial-update-product.dto';
+import { ProductResponseDto } from '../dtos/product-response.dto';
 
 export class Product {
-
   constructor(
     public id: number,
     public name: string,
@@ -15,7 +14,7 @@ export class Product {
     public createdAt: Date,
   ) {}
 
-  static fromDto(dto: CreateProductDTO): Product {
+  static fromDto(dto: CreateProductDto): Product {
     return new Product(
       0,
       dto.name,
@@ -40,27 +39,26 @@ export class Product {
   toEntity(): ProductEntity {
     const entity = new ProductEntity();
     if (this.id > 0) entity.id = this.id;
-    entity.name = this.name;
+    entity.name = this.name; 
     entity.description = this.description ?? null;
+
     entity.price = this.price;
     entity.stock = this.stock;
     return entity;
   }
 
-  toResponseDTO(): ProductResponseDTO {
+  toResponseDto(): ProductResponseDto {
     return {
       id: this.id,
       name: this.name,
       description: this.description,
       price: this.price,
       stock: this.stock,
-      createdAt: this.createdAt
-  ? this.createdAt.toISOString()
-  : null,
+      createdAt: (this.createdAt ?? new Date()).toISOString(),
     };
   }
 
-  update(dto: UpdateProductDTO): Product {
+  update(dto: UpdateProductDto): Product {
     this.name = dto.name;
     this.description = dto.description;
     this.price = dto.price;
@@ -68,7 +66,7 @@ export class Product {
     return this;
   }
 
-  partialUpdate(dto: PartialUpdateProductDTO): Product {
+  partialUpdate(dto: PartialUpdateProductDto): Product {
     if (dto.name !== undefined) this.name = dto.name;
     if (dto.description !== undefined) this.description = dto.description;
     if (dto.price !== undefined) this.price = dto.price;
